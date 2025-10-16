@@ -1,103 +1,57 @@
-import Image from "next/image";
+"use client";
+import { BirthdayData } from "@/lib/birthday/types";
+import { useRouter } from "next/navigation";
+import { FormEvent } from "react";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const router = useRouter();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  async function handleSubmit(form: FormEvent) {
+    form.preventDefault();
+
+    const nameInput = document.getElementById("name") as HTMLInputElement;
+    const dateInput = document.getElementById("date") as HTMLInputElement;
+
+    const name = nameInput.value;
+    const date = new Date(dateInput.value);
+
+    const res = await fetch("/api/birthday/create", {
+      method: "POST",
+      body: JSON.stringify({ name, date }),
+    });
+
+    const json = await res.json();
+    const data = json.data as BirthdayData;
+
+    router.push(`/${data.id}`);
+  }
+  return (
+    <div className="flex flex-col h-screen items-center justify-center">
+      <h1 className="text-6xl font-bold">Birthday Countdown</h1>
+      <p className="text-xl mt-3">
+        A simple birthday countdown application built with Next.js, just to test
+        Redis.
+      </p>
+      <form className="flex flex-col gap-2 mt-10" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Name"
+          id="name"
+          className="bg-zinc-900 w-96 py-2 px-3 rounded-lg border border-zinc-800 outline-none"
+          required
+        />
+        <input
+          type="date"
+          id="date"
+          className="bg-zinc-900 w-96 py-2 px-3 rounded-lg border border-zinc-800 outline-none"
+          required
+        />
+        <input
+          type="submit"
+          value="Submit"
+          className="bg-white text-black rounded-lg py-2 mt-3 transition hover:bg-zinc-200 cursor-pointer"
+        />
+      </form>
     </div>
   );
 }
